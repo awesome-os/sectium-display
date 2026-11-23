@@ -1,0 +1,16 @@
+name: sectium-display CI
+on: [push, pull_request, workflow_dispatch]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Compile & Run Native C11 Protocol Suite (78 assertions)
+        run: |
+          gcc -std=c11 -O2 -Wall -Wextra -Werror -DSECTIUM_DISPLAY_STATIC -Iinclude src/sectium_display_test.c src/sectium_display.c -o test_display
+          ./test_display
+      - name: Run Scriptable 2D/3D WM & Modular WebFrame Provider Suites
+        run: node --test wm/scriptable-wm.test.mts wm/webframe-provider.test.mts
