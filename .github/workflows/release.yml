@@ -32,7 +32,7 @@ jobs:
           zig cc -target aarch64-macos      -std=c11 -O2 -Wall -Wextra -Werror -shared -fPIC -Iinclude src/sectium_display.c -o dist/libsectium_display-macos-arm64.dylib
           zig cc -target wasm32-wasi        -std=c11 -O2 -Wall -Wextra -Werror -mexec-model=reactor -Wl,--export-dynamic -Iinclude src/sectium_display.c -o dist/libsectium_display.wasm
           for s in 01-browser-split-shell 02-ide-workbench-shell 03-tiling-wm-shell 04-command-palette-launcher 05-multi-agent-world-shell 06-node-graph-studio-shell 07-docking-dashboard-shell 08-tray-popover-widget-shell; do
-            zig cc -target x86_64-windows-gnu -std=c11 -O2 -Wall -Wextra -Werror -Wno-unused-command-line-argument -mwindows "gui-shells/$s/main.c" src/sectium_display.c -lgdi32 -luser32 -o "dist/$s.exe"
+            zig cc -target x86_64-windows-gnu -std=c11 -O2 -Wall -Wextra -Werror -Wno-unused-command-line-argument -mwindows -Iinclude "gui-shells/$s/main.c" src/sectium_display.c -lgdi32 -luser32 -o "dist/$s.exe"
           done
           gcc -std=c11 -O2 -Wall -Wextra -Werror -DSECTIUM_DISPLAY_STATIC -Iinclude src/sectium_display_test.c src/sectium_display.c -o test_display && ./test_display
           node --test wm/scriptable-wm.test.mts wm/webframe-provider.test.mts
