@@ -30,7 +30,7 @@ jobs:
           zig cc -target x86_64-linux-musl -std=c11 -O2 -Wall -Wextra -Werror -shared -fPIC -Iinclude src/sectium_display.c -o dist/libsectium_display-linux-x64.so
           zig cc -target aarch64-linux-musl -std=c11 -O2 -Wall -Wextra -Werror -shared -fPIC -Iinclude src/sectium_display.c -o dist/libsectium_display-linux-arm64.so
           zig cc -target aarch64-macos -std=c11 -O2 -Wall -Wextra -Werror -shared -fPIC -Iinclude src/sectium_display.c -o dist/libsectium_display-macos-arm64.dylib
-          zig cc -target wasm32-wasi -std=c11 -O2 -Wall -Wextra -Werror -Wl,--no-entry -Wl,--export-all -Iinclude src/sectium_display.c -o dist/libsectium_display.wasm
+          zig cc -target wasm32-wasi -std=c11 -O2 -Wall -Wextra -Werror -mexec-model=reactor -Wl,--export-dynamic -Iinclude src/sectium_display.c -o dist/libsectium_display.wasm
           gcc -std=c11 -O2 -Wall -Wextra -Werror -DSECTIUM_DISPLAY_STATIC -Iinclude src/sectium_display_test.c src/sectium_display.c -o test_display && ./test_display
           node --test wm/scriptable-wm.test.mts wm/webframe-provider.test.mts
           sha256sum dist/* > dist/SHA256SUMS.txt
