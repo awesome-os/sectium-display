@@ -1,13 +1,13 @@
-name: Release — Cross-Compile 5-OS libsectium-display
+name: Release — Cross-Compile 5-OS libsectium-display + 8 Win32 GUI Shells
 on:
   push:
     tags: ['v*']
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Release tag (e.g. v0.3.0)'
+        description: 'Release tag (e.g. v0.4.0)'
         required: true
-        default: 'v0.3.0'
+        default: 'v0.4.0'
 
 permissions:
   contents: write
@@ -23,14 +23,17 @@ jobs:
       - uses: mlugg/setup-zig@v2
         with:
           version: 0.14.0
-      - name: Cross-Compile 5-OS Targets & Run Native + WM Tests
+      - name: Cross-Compile 5-OS libsectium-display + All 8 Win32 GUI Shells
         run: |
           mkdir -p dist
           zig cc -target x86_64-windows-gnu -std=c11 -O2 -Wall -Wextra -Werror -shared -Iinclude src/sectium_display.c -o dist/libsectium_display.dll
-          zig cc -target x86_64-linux-musl -std=c11 -O2 -Wall -Wextra -Werror -shared -fPIC -Iinclude src/sectium_display.c -o dist/libsectium_display-linux-x64.so
+          zig cc -target x86_64-linux-musl  -std=c11 -O2 -Wall -Wextra -Werror -shared -fPIC -Iinclude src/sectium_display.c -o dist/libsectium_display-linux-x64.so
           zig cc -target aarch64-linux-musl -std=c11 -O2 -Wall -Wextra -Werror -shared -fPIC -Iinclude src/sectium_display.c -o dist/libsectium_display-linux-arm64.so
-          zig cc -target aarch64-macos -std=c11 -O2 -Wall -Wextra -Werror -shared -fPIC -Iinclude src/sectium_display.c -o dist/libsectium_display-macos-arm64.dylib
-          zig cc -target wasm32-wasi -std=c11 -O2 -Wall -Wextra -Werror -mexec-model=reactor -Wl,--export-dynamic -Iinclude src/sectium_display.c -o dist/libsectium_display.wasm
+          zig cc -target aarch64-macos      -std=c11 -O2 -Wall -Wextra -Werror -shared -fPIC -Iinclude src/sectium_display.c -o dist/libsectium_display-macos-arm64.dylib
+          zig cc -target wasm32-wasi        -std=c11 -O2 -Wall -Wextra -Werror -mexec-model=reactor -Wl,--export-dynamic -Iinclude src/sectium_display.c -o dist/libsectium_display.wasm
+          for s in 01-browser-split-shell 02-ide-workbench-shell 03-tiling-wm-shell 04-command-palette-launcher 05-multi-agent-world-shell 06-node-graph-studio-shell 07-docking-dashboard-shell 08-tray-popover-widget-shell; do
+            zig cc -target x86_64-windows-gnu -std=c11 -O2 -Wall -Wextra -Werror -Wno-unused-command-line-argument -mwindows "gui-shells/$s/main.c" src/sectium_display.c -lgdi32 -luser32 -o "dist/$s.exe"
+          done
           gcc -std=c11 -O2 -Wall -Wextra -Werror -DSECTIUM_DISPLAY_STATIC -Iinclude src/sectium_display_test.c src/sectium_display.c -o test_display && ./test_display
           node --test wm/scriptable-wm.test.mts wm/webframe-provider.test.mts
           sha256sum dist/* > dist/SHA256SUMS.txt
@@ -39,4 +42,4 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAG: ${{ github.event.inputs.tag || github.ref_name }}
         run: |
-          gh release create "$TAG" dist/* --title "sectium-display $TAG (Win64, Linux x64/ARM64, macOS, WASI)" --notes "Built and verified automatically by GitHub Actions runner." || gh release upload "$TAG" dist/* --clobber
+          gh release create "$TAG" dist/* --title "sectium-display $TAG (5-OS Lib + 8 Fresh Win32 GUI Shells)" --notes "All 5 OS libraries and all 8 Win32 .exe GUI shells cross-compiled fresh on GitHub Actions." || gh release upload "$TAG" dist/* --clobber
