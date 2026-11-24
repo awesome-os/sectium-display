@@ -15,3 +15,13 @@ node --test wm/scriptable-wm.test.mts wm/webframe-provider.test.mts
 
 ## License
 MIT
+
+## Quick Install & Run (Windows / Linux / macOS)
+
+```sh
+# Download latest release assets (all platforms)
+gh release download -R awesome-os/sectium-display --dir ./sectium-display-release
+
+# Or clone source directly (all platforms)
+git clone https://github.com/awesome-os/sectium-display.git && cd sectium-display
+```
